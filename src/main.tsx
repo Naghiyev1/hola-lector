@@ -83,11 +83,35 @@ function App() {
     }
   }
 
+  function isWordSaved(word: string) {
+    return savedWords.some((item) => item.word.toLowerCase() === word.toLowerCase())
+  }
+
+  function getWordContext(word: string) {
+    if (!word || !articleBody) return selectedArticle?.title || ''
+
+    const cleanWord = normalizeWord(word).toLowerCase()
+    const sentences = articleBody
+      .replace(/\s+/g, ' ')
+      .split(/(?<=[.!?])\s+/)
+      .map((sentence) => sentence.trim())
+      .filter(Boolean)
+
+    const matchingSentence = sentences.find((sentence) =>
+      sentence
+        .split(/\s+/)
+        .map((part) => normalizeWord(part).toLowerCase())
+        .includes(cleanWord),
+    )
+
+    return matchingSentence || selectedArticle?.title || ''
+  }
+
   function saveWord() {
     if (!activeWord) return
 
     const meaning = translation?.translatedText || ''
-    const existing = savedWords.some((item) => item.word.toLowerCase() === activeWord.toLowerCase())
+    const existing = isWordSaved(activeWord)
 
     if (!existing) {
       setSavedWords((previous) => [
@@ -95,7 +119,7 @@ function App() {
           id: `${activeWord}-${Date.now()}`,
           word: activeWord,
           meaning,
-          example: selectedArticle?.title || '',
+          example: getWordContext(activeWord),
           createdAt: new Date().toISOString(),
           reviewCount: 0,
           known: false,
@@ -264,27 +288,40 @@ function App() {
             <aside className="panel word-panel">
               <h3>Word helper</h3>
               {!activeWord ? (
-                <p className="muted">Tap any Spanish word in the article.</p>
+                <p className="muted">Tap any Spanish word in the article to translate it, hear it, and save it for review.</p>
               ) : (
                 <>
                   <div className="selected-word">
-                    <strong>{activeWord}</strong>
+                    <div>
+                      <span className="eyebrow">Selected word</span>
+                      <strong>{activeWord}</strong>
+                    </div>
                     <button className="icon-button" onClick={() => speak(activeWord)} title="Pronounce">
                       <Volume2 size={18} />
                     </button>
                   </div>
 
-                  {isTranslating && <p className="muted">Translating...</p>}
-                  {translation && (
-                    <div className="translation">
-                      <p>{translation.translatedText}</p>
-                      {translation.warning && <small>{translation.warning}</small>}
-                    </div>
-                  )}
+                  <div className="helper-section">
+                    <span className="helper-label">Translation</span>
+                    {isTranslating && <p className="muted">Translating...</p>}
+                    {translation ? (
+                      <div className="translation">
+                        <p>{translation.translatedText || 'No translation found.'}</p>
+                        {translation.warning && <small>{translation.warning}</small>}
+                      </div>
+                    ) : (
+                      !isTranslating && <p className="muted">Translation will appear here.</p>
+                    )}
+                  </div>
 
-                  <button className="primary full" onClick={saveWord}>
-                    <Star size={17} />
-                    Save word
+                  <div className="helper-section">
+                    <span className="helper-label">Context</span>
+                    <p className="context-snippet">{getWordContext(activeWord)}</p>
+                  </div>
+
+                  <button className="primary full" onClick={saveWord} disabled={isWordSaved(activeWord)}>
+                    {isWordSaved(activeWord) ? <CheckCircle2 size={17} /> : <Star size={17} />}
+                    {isWordSaved(activeWord) ? 'Saved' : 'Save word'}
                   </button>
                 </>
               )}
