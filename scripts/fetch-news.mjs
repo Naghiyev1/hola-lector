@@ -1,3 +1,4 @@
+import fetch from 'node-fetch'
 import { writeFile, mkdir } from 'node:fs/promises';
 
 const FEEDS = [
