@@ -353,35 +353,64 @@ h1 {
 
 .vocab-list {
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 .vocab-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 22px;
   align-items: center;
-  border: 1px solid #e5eaf3;
-  border-radius: 20px;
-  padding: 16px;
+  border: 1px solid #e1e8f2;
+  border-radius: 24px;
+  padding: 22px;
+  background: #ffffff;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.045);
 }
 
 .vocab-item.known {
-  background: #f0fdf4;
+  background: linear-gradient(180deg, #f0fdf4, #ffffff);
   border-color: #bbf7d0;
 }
 
+.vocab-item.known::before {
+  content: "Known";
+  justify-self: start;
+  grid-column: 1 / -1;
+  width: fit-content;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #047857;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 6px 10px;
+  text-transform: uppercase;
+}
+
 .vocab-item strong {
-  font-size: 1.3rem;
+  display: block;
+  color: #111827;
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  margin-bottom: 4px;
 }
 
 .vocab-item p {
-  margin-bottom: 4px;
   color: #475569;
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.35;
+  margin-bottom: 10px;
 }
 
 .vocab-item small {
+  display: block;
+  max-width: 880px;
   color: #64748b;
+  font-size: 0.94rem;
+  line-height: 1.55;
 }
 
 .vocab-actions {
@@ -389,14 +418,21 @@ h1 {
   flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
+  align-items: center;
+}
+
+.vocab-actions .danger {
+  background: #fff1f2;
+  color: #be123c;
 }
 
 .empty {
-  padding: 36px;
+  padding: 46px;
   text-align: center;
   color: #64748b;
   background: #f8fafc;
-  border-radius: 20px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 24px;
 }
 
 .spin {
