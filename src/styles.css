@@ -1,0 +1,418 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
+  background: #f4f7fb;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-end;
+  padding: 40px clamp(18px, 4vw, 56px) 28px;
+  background: linear-gradient(135deg, #14213d 0%, #1e3a5f 60%, #f59e0b 160%);
+  color: white;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: #fcd34d;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 12px;
+  font-size: clamp(2.4rem, 7vw, 5rem);
+  line-height: 0.95;
+}
+
+.hero-copy {
+  max-width: 720px;
+  margin-bottom: 0;
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tab,
+.primary,
+.secondary,
+.danger,
+.icon-button,
+.link-button {
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  font-weight: 750;
+}
+
+.tab {
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tab.active {
+  background: white;
+  color: #172033;
+}
+
+.badge {
+  background: #f59e0b;
+  color: #111827;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+}
+
+.layout {
+  padding: 24px clamp(16px, 4vw, 56px) 56px;
+}
+
+.panel {
+  background: white;
+  border: 1px solid #e5eaf3;
+  border-radius: 28px;
+  padding: clamp(18px, 3vw, 28px);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.panel-head p,
+.muted {
+  color: #64748b;
+}
+
+.primary {
+  background: #14213d;
+  color: white;
+}
+
+.secondary {
+  background: #edf2f7;
+  color: #172033;
+}
+
+.danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.full {
+  width: 100%;
+}
+
+.link-button {
+  background: transparent;
+  color: #2563eb;
+  padding: 0;
+  min-height: auto;
+  margin-bottom: 16px;
+}
+
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #dbe3ef;
+  border-radius: 18px;
+  padding: 0 14px;
+  min-height: 48px;
+  margin-bottom: 20px;
+  background: #f8fafc;
+}
+
+.search-row input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+
+.notice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #fff7ed;
+  color: #9a3412;
+  margin-bottom: 16px;
+  line-height: 1.45;
+}
+
+.notice.success {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+  gap: 16px;
+}
+
+.card {
+  border: 1px solid #e5eaf3;
+  border-radius: 22px;
+  padding: 18px;
+  background: #fff;
+}
+
+.card h3 {
+  font-size: 1.08rem;
+  line-height: 1.3;
+}
+
+.card p {
+  color: #526073;
+  line-height: 1.55;
+}
+
+.source-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.source-row a {
+  color: #2563eb;
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  text-decoration: none;
+}
+
+.skeleton {
+  min-height: 210px;
+  background: linear-gradient(90deg, #f1f5f9, #e2e8f0, #f1f5f9);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+.reader-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+.reader h2 {
+  font-size: clamp(1.5rem, 4vw, 2.3rem);
+  line-height: 1.15;
+}
+
+.reading-text {
+  font-size: clamp(1.08rem, 2.6vw, 1.32rem);
+  line-height: 2.05;
+  color: #172033;
+}
+
+.word {
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  padding: 1px 2px;
+  color: inherit;
+}
+
+.word:hover,
+.word:focus {
+  background: #fef3c7;
+  outline: none;
+}
+
+.word-panel {
+  position: sticky;
+  top: 16px;
+}
+
+.selected-word {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.selected-word strong {
+  font-size: 1.8rem;
+}
+
+.icon-button {
+  width: 42px;
+  padding: 0;
+  background: #edf2f7;
+}
+
+.translation {
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.translation p {
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.translation small {
+  color: #64748b;
+}
+
+.vocab-list {
+  display: grid;
+  gap: 12px;
+}
+
+.vocab-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  border: 1px solid #e5eaf3;
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.vocab-item.known {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.vocab-item strong {
+  font-size: 1.3rem;
+}
+
+.vocab-item p {
+  margin-bottom: 4px;
+  color: #475569;
+}
+
+.vocab-item small {
+  color: #64748b;
+}
+
+.vocab-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.empty {
+  padding: 36px;
+  text-align: center;
+  color: #64748b;
+  background: #f8fafc;
+  border-radius: 20px;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+@media (max-width: 850px) {
+  .hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .hero-actions {
+    width: 100%;
+  }
+
+  .tab {
+    flex: 1;
+  }
+
+  .panel-head {
+    flex-direction: column;
+  }
+
+  .reader-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .word-panel {
+    position: static;
+  }
+
+  .vocab-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .vocab-actions {
+    justify-content: flex-start;
+  }
+}
