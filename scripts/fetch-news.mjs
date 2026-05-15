@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { writeFile, mkdir } from 'node:fs/promises';
+import { TextDecoder } from 'node:util';
 
 const FEEDS = [
   { source: 'El País', url: 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada' },
@@ -115,7 +116,7 @@ async function fetchFeed(feed) {
     throw new Error(`${feed.source} feed failed with HTTP ${response.status}`);
   }
 
-  const xml = await response.text();
+  const xml = await readResponseText(response);
   const items = [...xml.matchAll(/<item\b[\s\S]*?<\/item>/gi)].slice(0, MAX_ARTICLES_PER_FEED);
 
   return items.map((match, index) => {
@@ -156,7 +157,7 @@ async function enrichArticle(article) {
       return normaliseArticle(article, 'summary');
     }
 
-    const html = await response.text();
+    const html = await readResponseText(response);
     const extracted = extractArticleText(html);
 
     if (countWords(extracted) >= MIN_READING_WORDS) {
@@ -390,6 +391,34 @@ function hash(value) {
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+async function readResponseText(response) {
+  const buffer = Buffer.from(await response.arrayBuffer());
+  const contentType = response.headers.get('content-type') || '';
+
+  const charsetMatch = contentType.match(/charset=([^;]+)/i);
+  const declaredCharset = charsetMatch?.[1]?.trim().toLowerCase();
+
+  const likelyLatin1 =
+    declaredCharset?.includes('iso-8859-1') ||
+    declaredCharset?.includes('latin1') ||
+    declaredCharset?.includes('latin-1') ||
+    declaredCharset?.includes('windows-1252');
+
+  if (likelyLatin1) {
+    return new TextDecoder('windows-1252').decode(buffer);
+  }
+
+  const utf8Text = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
+
+  const replacementCount = (utf8Text.match(/�/g) || []).length;
+
+  if (replacementCount > 5) {
+    return new TextDecoder('windows-1252').decode(buffer);
+  }
+
+  return utf8Text;
 }
 
 main().catch((error) => {
