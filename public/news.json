@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-05-15T00:00:00.000Z",
+  "sourceCount": 5,
+  "articleCount": 1,
+  "articles": [
+    {
+      "id": "sample-1",
+      "source": "rtve",
+      "title": "La vida cotidiana en España cambia con nuevos hábitos digitales",
+      "summary": "Cada vez más personas utilizan herramientas digitales para leer noticias, aprender idiomas y organizar su día. Este texto de muestra sirve para practicar vocabulario cuando las fuentes en directo no están disponibles.",
+      "url": "https://www.rtve.es/noticias/",
+      "publishedAt": "2026-05-15T00:00:00.000Z",
+      "content": "Cada vez más personas utilizan herramientas digitales para leer noticias, aprender idiomas y organizar su día. Este texto de muestra sirve para practicar vocabulario cuando las fuentes en directo no están disponibles."
+    }
+  ]
+}
