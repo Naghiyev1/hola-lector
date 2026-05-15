@@ -11,9 +11,9 @@
     "update:news": "node scripts/fetch-news.mjs"
   },
   "dependencies": {
+    "lucide-react": "latest",
     "react": "latest",
-    "react-dom": "latest",
-    "lucide-react": "latest"
+    "react-dom": "latest"
   },
   "devDependencies": {
     "@types/react": "latest",
