@@ -9,6 +9,7 @@ import { loadSavedWords, saveSavedWords } from './lib/storage'
 import { tokenizeSpanishText, normalizeWord } from './lib/text'
 
 type View = 'news' | 'reader' | 'vocab'
+type VocabFilter = 'all' | 'learning' | 'known'
 
 const SOURCE_LABELS: Record<string, string> = {
   elpais: 'El País',
@@ -29,6 +30,7 @@ function App() {
   const [fromCache, setFromCache] = React.useState(false)
   const [query, setQuery] = React.useState('')
   const [savedWords, setSavedWords] = React.useState<SavedWord[]>(() => loadSavedWords())
+  const [vocabFilter, setVocabFilter] = React.useState<VocabFilter>('all')
   const [activeWord, setActiveWord] = React.useState('')
   const [translation, setTranslation] = React.useState<TranslationResult | null>(null)
   const [isTranslating, setIsTranslating] = React.useState(false)
@@ -151,6 +153,12 @@ function App() {
       ),
     )
   }
+
+  const filteredSavedWords = savedWords.filter((item) => {
+    if (vocabFilter === 'known') return item.known
+    if (vocabFilter === 'learning') return !item.known
+    return true
+  })
 
   const filteredArticles = articles.filter((article) => {
     const value = `${article.title} ${article.summary} ${article.source}`.toLowerCase()
@@ -336,13 +344,30 @@ function App() {
                 <h2>Saved vocabulary</h2>
                 <p>Words are stored locally in this browser.</p>
               </div>
+
+              <div className="filter-tabs" aria-label="Vocabulary filters">
+                <button className={vocabFilter === 'all' ? 'filter-tab active' : 'filter-tab'} onClick={() => setVocabFilter('all')}>
+                  All
+                  <span>{savedWords.length}</span>
+                </button>
+                <button className={vocabFilter === 'learning' ? 'filter-tab active' : 'filter-tab'} onClick={() => setVocabFilter('learning')}>
+                  Learning
+                  <span>{savedWords.filter((item) => !item.known).length}</span>
+                </button>
+                <button className={vocabFilter === 'known' ? 'filter-tab active' : 'filter-tab'} onClick={() => setVocabFilter('known')}>
+                  Known
+                  <span>{savedWords.filter((item) => item.known).length}</span>
+                </button>
+              </div>
             </div>
 
             {savedWords.length === 0 ? (
               <div className="empty">No saved words yet. Open an article and tap words to save them.</div>
+            ) : filteredSavedWords.length === 0 ? (
+              <div className="empty">No words in this filter yet.</div>
             ) : (
               <div className="vocab-list">
-                {savedWords.map((item) => (
+                {filteredSavedWords.map((item) => (
                   <div className={item.known ? 'vocab-item known' : 'vocab-item'} key={item.id}>
                     <div>
                       <strong>{item.word}</strong>
