@@ -1,7 +1,14 @@
 import type { Article, ArticleBodyResult, NewsLoadResult } from './types'
 import { loadCachedArticles, saveCachedArticles } from './storage'
 
-const FALLBACK_ARTICLES: Article[] = [
+type NewsSnapshot = {
+  generatedAt: string
+  sourceCount: number
+  articleCount: number
+  articles: Article[]
+}
+
+const fallbackArticles: Article[] = [
   {
     id: 'sample-1',
     source: 'rtve',
@@ -11,29 +18,20 @@ const FALLBACK_ARTICLES: Article[] = [
     url: 'https://www.rtve.es/noticias/',
     publishedAt: new Date().toISOString(),
     content:
-      'Cada vez más personas utilizan herramientas digitales para leer noticias, aprender idiomas y organizar su día. Este texto de muestra sirve para practicar vocabulario cuando las fuentes en directo no están disponibles.',
-  },
+      'Cada vez más personas utilizan herramientas digitales para leer noticias, aprender idiomas y organizar su día. Este texto de muestra sirve para practicar vocabulario cuando las fuentes en directo no están disponibles.'
+  }
 ]
-
-type StaticNewsPayload = {
-  generatedAt?: string
-  sourceCount?: number
-  articleCount?: number
-  articles?: Article[]
-}
 
 export async function fetchSpanishNews(): Promise<NewsLoadResult> {
   try {
-    const response = await fetch(`${import.meta.env.BASE_URL}news.json?ts=${Date.now()}`, {
-      cache: 'no-store',
-    })
+    const response = await fetch(`${import.meta.env.BASE_URL}news.json?ts=${Date.now()}`)
 
     if (!response.ok) {
-      throw new Error(`Static news file returned HTTP ${response.status}`)
+      throw new Error(`news.json failed with ${response.status}`)
     }
 
-    const payload = (await response.json()) as StaticNewsPayload
-    const articles = Array.isArray(payload.articles) ? payload.articles : []
+    const snapshot = (await response.json()) as NewsSnapshot
+    const articles = Array.isArray(snapshot.articles) ? snapshot.articles : []
 
     if (articles.length > 0) {
       saveCachedArticles(articles)
@@ -41,52 +39,49 @@ export async function fetchSpanishNews(): Promise<NewsLoadResult> {
       return {
         articles,
         fromCache: false,
-        warning: payload.generatedAt
-          ? `News snapshot updated ${new Date(payload.generatedAt).toLocaleString()}.`
-          : undefined,
+        warning: snapshot.generatedAt
+          ? `News snapshot updated ${new Date(snapshot.generatedAt).toLocaleString()}.`
+          : undefined
       }
     }
 
-    throw new Error('Static news file contains no articles.')
-  } catch (error) {
+    throw new Error('news.json contained no articles')
+  } catch {
     const cached = loadCachedArticles()
 
     if (cached.length > 0) {
       return {
         articles: cached,
         fromCache: true,
-        warning: 'News snapshot could not be loaded. Showing cached articles from this browser.',
+        warning: 'News snapshot could not be loaded. Showing cached articles.'
       }
     }
 
     return {
-      articles: FALLBACK_ARTICLES,
+      articles: fallbackArticles,
       fromCache: false,
-      warning:
-        error instanceof Error
-          ? `News snapshot could not be loaded. Showing sample reading material. ${error.message}`
-          : 'News snapshot could not be loaded. Showing sample reading material.',
+      warning: 'News snapshot could not be loaded. Showing sample reading material.'
     }
   }
 }
 
 export async function getArticleBody(article: Article): Promise<ArticleBodyResult> {
-  if (article.content && article.content.trim().length > 0) {
+  if (article.content && article.content.trim().length > 80) {
     return {
       text: article.content,
-      status: article.content.length > 500 ? 'full' : 'summary',
+      status: article.content.length > 500 ? 'full' : 'summary'
     }
   }
 
-  if (article.summary) {
+  if (article.summary && article.summary.trim().length > 0) {
     return {
       text: article.summary,
-      status: 'summary',
+      status: 'summary'
     }
   }
 
   return {
     text: '',
-    status: 'failed',
+    status: 'failed'
   }
 }
