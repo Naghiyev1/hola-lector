@@ -307,7 +307,9 @@ function getMetaProperty(html, property) {
 }
 
 function stripCdata(value) {
-  return value.replace(/^<!\[CDATA\[/, '').replace(/\]\]>$/, '');
+  return String(value || '')
+    .replace(/<!\[CDATA\[/g, '')
+    .replace(/\]\]>/g, '');
 }
 
 function stripHtml(value) {
@@ -349,9 +351,13 @@ function decodeEntities(value) {
 }
 
 function cleanText(value) {
-  return decodeEntities(value || '')
+  return decodeEntities(stripCdata(value || ''))
+    .replace(/<!\[CDATA\[/g, '')
+    .replace(/\]\]>/g, '')
     .replace(/\s+/g, ' ')
     .replace(/\s+([,.!?;:])/g, '$1')
+    .replace(/\s+Leer$/i, '')
+    .replace(/\s+Seguir leyendo$/i, '')
     .trim();
 }
 
