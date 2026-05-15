@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "lucide-react": "latest",
+    "node-fetch": "^3.3.2",
     "react": "latest",
     "react-dom": "latest"
   },
