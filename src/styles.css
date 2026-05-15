@@ -246,21 +246,34 @@ h1 {
 }
 
 .reader-grid {
+  width: min(100%, 1260px);
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 20px;
+  grid-template-columns: minmax(0, 860px) 320px;
+  gap: 28px;
   align-items: start;
+  justify-content: center;
 }
 
 .reader h2 {
-  font-size: clamp(1.5rem, 4vw, 2.3rem);
-  line-height: 1.15;
+  max-width: 880px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  margin-bottom: 28px;
 }
 
 .reading-text {
-  font-size: clamp(1.08rem, 2.6vw, 1.32rem);
-  line-height: 2.05;
+  max-width: 780px;
+  font-size: clamp(1.15rem, 1.6vw, 1.32rem);
+  line-height: 1.9;
+  letter-spacing: -0.012em;
   color: #172033;
+}
+
+.reading-text p,
+.reading-text div {
+  margin-bottom: 1.25em;
 }
 
 .word {
