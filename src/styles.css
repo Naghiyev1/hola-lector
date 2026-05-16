@@ -298,9 +298,12 @@ h1 {
   color: #172033;
 }
 
-.reading-text p,
-.reading-text div {
-  margin-bottom: 1.25em;
+.reading-paragraph {
+  margin: 0 0 1.45em;
+}
+
+.reading-paragraph:last-child {
+  margin-bottom: 0;
 }
 
 .word {

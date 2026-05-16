@@ -182,6 +182,40 @@ function App() {
     )
   }
 
+  function splitIntoReadingParagraphs(text: string) {
+    const cleaned = text
+      .replace(/\r/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+
+    if (!cleaned) return []
+
+    const existingParagraphs = cleaned
+      .split(/\n{2,}/)
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean)
+
+    if (existingParagraphs.length > 1) {
+      return existingParagraphs
+    }
+
+    const sentences = cleaned
+      .replace(/\s+/g, ' ')
+      .split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÜÑ¿¡])/)
+      .map((sentence) => sentence.trim())
+      .filter(Boolean)
+
+    if (sentences.length <= 2) return [cleaned]
+
+    const paragraphs: string[] = []
+
+    for (let index = 0; index < sentences.length; index += 3) {
+      paragraphs.push(sentences.slice(index, index + 3).join(' '))
+    }
+
+    return paragraphs
+  }
+
   const filteredSavedWords = savedWords.filter((item) => {
     if (vocabFilter === 'known') return item.known
     if (vocabFilter === 'learning') return !item.known
@@ -194,7 +228,7 @@ function App() {
   })
 
   const readingText = articleBody || selectedArticle?.summary || ''
-  const tokens = tokenizeSpanishText(readingText)
+  const readingParagraphs = splitIntoReadingParagraphs(readingText)
 
   return (
     <div className="app">
@@ -318,15 +352,27 @@ function App() {
               )}
 
               <div className="reading-text">
-                {tokens.map((token, index) =>
-                  token.type === 'word' ? (
-                    <button key={`${token.value}-${index}`} className="word" onClick={() => selectWord(token.value)}>
-                      {token.value}
-                    </button>
-                  ) : (
-                    <span key={`${token.value}-${index}`}>{token.value}</span>
-                  ),
-                )}
+                {readingParagraphs.map((paragraph, paragraphIndex) => {
+                  const paragraphTokens = tokenizeSpanishText(paragraph)
+
+                  return (
+                    <p className="reading-paragraph" key={`paragraph-${paragraphIndex}`}>
+                      {paragraphTokens.map((token, tokenIndex) =>
+                        token.type === 'word' ? (
+                          <button
+                            key={`${token.value}-${paragraphIndex}-${tokenIndex}`}
+                            className="word"
+                            onClick={() => selectWord(token.value)}
+                          >
+                            {token.value}
+                          </button>
+                        ) : (
+                          <span key={`${token.value}-${paragraphIndex}-${tokenIndex}`}>{token.value}</span>
+                        ),
+                      )}
+                    </p>
+                  )
+                })}
               </div>
             </article>
 
