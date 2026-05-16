@@ -1,6 +1,19 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { BookOpen, RefreshCw, Search, Volume2, Star, Trash2, AlertCircle, ExternalLink, Newspaper, Library, CheckCircle2 } from 'lucide-react'
+import {
+  BookOpen,
+  RefreshCw,
+  Search,
+  Volume2,
+  Star,
+  Trash2,
+  AlertCircle,
+  ExternalLink,
+  Newspaper,
+  Library,
+  CheckCircle2,
+  X,
+} from 'lucide-react'
 import './styles.css'
 import type { Article, SavedWord, TranslationResult } from './lib/types'
 import { fetchSpanishNews, getArticleBody } from './lib/news'
@@ -46,6 +59,7 @@ function App() {
   async function loadNews() {
     setIsLoadingNews(true)
     setNewsError('')
+
     try {
       const result = await fetchSpanishNews()
       setArticles(result.articles)
@@ -63,6 +77,7 @@ function App() {
     setView('reader')
     setArticleBody(article.summary || '')
     setArticleStatus('loading')
+    closeWordHelper()
 
     const result = await getArticleBody(article)
     setArticleBody(result.text || article.summary || '')
@@ -83,6 +98,12 @@ function App() {
     } finally {
       setIsTranslating(false)
     }
+  }
+
+  function closeWordHelper() {
+    setActiveWord('')
+    setTranslation(null)
+    setIsTranslating(false)
   }
 
   function isWordSaved(word: string) {
@@ -133,9 +154,11 @@ function App() {
 
   function speak(text: string) {
     if (!('speechSynthesis' in window)) return
+
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.lang = 'es-ES'
     utterance.rate = 0.85
+
     window.speechSynthesis.cancel()
     window.speechSynthesis.speak(utterance)
   }
@@ -148,7 +171,12 @@ function App() {
     setSavedWords((previous) =>
       previous.map((item) =>
         item.id === id
-          ? { ...item, known: !item.known, reviewCount: item.reviewCount + 1, lastReviewedAt: new Date().toISOString() }
+          ? {
+              ...item,
+              known: !item.known,
+              reviewCount: item.reviewCount + 1,
+              lastReviewedAt: new Date().toISOString(),
+            }
           : item,
       ),
     )
@@ -200,6 +228,7 @@ function App() {
                 <h2>Latest Spanish news</h2>
                 <p>RSS summaries are used as the reliable fallback. Full articles load when possible.</p>
               </div>
+
               <button className="secondary" onClick={loadNews} disabled={isLoadingNews}>
                 <RefreshCw size={17} className={isLoadingNews ? 'spin' : ''} />
                 Refresh
@@ -239,8 +268,10 @@ function App() {
                       <span>{SOURCE_LABELS[article.source] || article.source}</span>
                       <span>{article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Latest'}</span>
                     </div>
+
                     <h3>{article.title}</h3>
                     <p>{article.summary || 'Summary unavailable. Open the article to try loading readable text.'}</p>
+
                     <button className="primary" onClick={() => openArticle(article)}>
                       <BookOpen size={17} />
                       Read and learn
@@ -259,21 +290,27 @@ function App() {
         {view === 'reader' && selectedArticle && (
           <section className="reader-grid">
             <article className="panel reader">
-              <button className="link-button" onClick={() => setView('news')}>← Back to news</button>
+              <button className="link-button" onClick={() => setView('news')}>
+                ← Back to news
+              </button>
+
               <div className="source-row">
                 <span>{SOURCE_LABELS[selectedArticle.source] || selectedArticle.source}</span>
                 <a href={selectedArticle.url} target="_blank" rel="noreferrer">
                   Original <ExternalLink size={14} />
                 </a>
               </div>
+
               <h2>{selectedArticle.title}</h2>
 
               {articleStatus === 'loading' && <div className="notice">Loading readable article text...</div>}
+
               {articleStatus === 'summary' && (
                 <div className="notice">
                   Full article could not be extracted reliably. Showing RSS summary instead.
                 </div>
               )}
+
               {articleStatus === 'failed' && (
                 <div className="notice">
                   Could not extract article text. You can still use the available summary and open the original source.
@@ -294,7 +331,16 @@ function App() {
             </article>
 
             <aside className={activeWord ? 'panel word-panel has-word' : 'panel word-panel is-empty'}>
-              <h3>Word helper</h3>
+              <div className="word-panel-head">
+                <h3>Word helper</h3>
+
+                {activeWord && (
+                  <button className="icon-button word-panel-close" onClick={closeWordHelper} title="Close translation">
+                    <X size={18} />
+                  </button>
+                )}
+              </div>
+
               {!activeWord ? (
                 <p className="muted">Tap any Spanish word in the article to translate it, hear it, and save it for review.</p>
               ) : (
@@ -304,6 +350,7 @@ function App() {
                       <span className="eyebrow">Selected word</span>
                       <strong>{activeWord}</strong>
                     </div>
+
                     <button className="icon-button" onClick={() => speak(activeWord)} title="Pronounce">
                       <Volume2 size={18} />
                     </button>
@@ -311,7 +358,9 @@ function App() {
 
                   <div className="helper-section">
                     <span className="helper-label">Translation</span>
+
                     {isTranslating && <p className="muted">Translating...</p>}
+
                     {translation ? (
                       <div className="translation">
                         <p>{translation.translatedText || 'No translation found.'}</p>
@@ -350,10 +399,15 @@ function App() {
                   All
                   <span>{savedWords.length}</span>
                 </button>
-                <button className={vocabFilter === 'learning' ? 'filter-tab active' : 'filter-tab'} onClick={() => setVocabFilter('learning')}>
+
+                <button
+                  className={vocabFilter === 'learning' ? 'filter-tab active' : 'filter-tab'}
+                  onClick={() => setVocabFilter('learning')}
+                >
                   Learning
                   <span>{savedWords.filter((item) => !item.known).length}</span>
                 </button>
+
                 <button className={vocabFilter === 'known' ? 'filter-tab active' : 'filter-tab'} onClick={() => setVocabFilter('known')}>
                   Known
                   <span>{savedWords.filter((item) => item.known).length}</span>
@@ -374,13 +428,16 @@ function App() {
                       <p>{item.meaning || 'Translation unavailable'}</p>
                       {item.example && <small>From: {item.example}</small>}
                     </div>
+
                     <div className="vocab-actions">
                       <button className="secondary" onClick={() => speak(item.word)}>
                         <Volume2 size={16} />
                       </button>
+
                       <button className="secondary" onClick={() => toggleKnown(item.id)}>
                         {item.known ? 'Known' : 'Mark known'}
                       </button>
+
                       <button className="danger" onClick={() => removeWord(item.id)}>
                         <Trash2 size={16} />
                       </button>
