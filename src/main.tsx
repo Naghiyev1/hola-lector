@@ -293,7 +293,7 @@ function App() {
               </div>
             </article>
 
-            <aside className="panel word-panel">
+            <aside className={activeWord ? 'panel word-panel has-word' : 'panel word-panel is-empty'}>
               <h3>Word helper</h3>
               {!activeWord ? (
                 <p className="muted">Tap any Spanish word in the article to translate it, hear it, and save it for review.</p>
