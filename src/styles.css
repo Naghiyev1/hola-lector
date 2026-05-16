@@ -380,6 +380,14 @@ h1 {
   line-height: 1.55;
 }
 
+.context-highlight {
+  border-radius: 7px;
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 800;
+  padding: 0 3px;
+}
+
 .translation {
   border-radius: 18px;
   background: #f8fafc;

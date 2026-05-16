@@ -130,6 +130,28 @@ function App() {
     return matchingSentence || selectedArticle?.title || ''
   }
 
+  function renderHighlightedContext(context: string, word: string) {
+    const cleanWord = normalizeWord(word).toLowerCase()
+
+    if (!context || !cleanWord) return context
+
+    const parts = context.split(/(\s+)/)
+
+    return parts.map((part, index) => {
+      const normalizedPart = normalizeWord(part).toLowerCase()
+
+      if (normalizedPart === cleanWord) {
+        return (
+          <mark className="context-highlight" key={`${part}-${index}`}>
+            {part}
+          </mark>
+        )
+      }
+
+      return <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
+    })
+  }
+
   function saveWord() {
     if (!activeWord) return
 
@@ -419,7 +441,7 @@ function App() {
 
                   <div className="helper-section">
                     <span className="helper-label">Context</span>
-                    <p className="context-snippet">{getWordContext(activeWord)}</p>
+                    <p className="context-snippet">{renderHighlightedContext(getWordContext(activeWord), activeWord)}</p>
                   </div>
 
                   <button className="primary full" onClick={saveWord} disabled={isWordSaved(activeWord)}>
