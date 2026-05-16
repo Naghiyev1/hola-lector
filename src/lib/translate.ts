@@ -35,6 +35,19 @@ const FALLBACK_DICTIONARY: Record<string, string> = {
   quienes: 'who',
   porque: 'because',
 
+  // Haber / auxiliary verb forms
+  haber: 'to have',
+  ha: 'has',
+  han: 'have',
+  he: 'I have',
+  hemos: 'we have',
+  haya: 'has / may have',
+  había: 'there was / had',
+  habían: 'there were / had',
+  habrá: 'there will be / will have',
+  habría: 'there would be / would have',
+  sido: 'been',
+
   // News/common article words
   líderes: 'leaders',
   líder: 'leader',
@@ -96,6 +109,7 @@ const BAD_TRANSLATIONS: Record<string, string[]> = {
   dispone: ['declares', 'provides'],
   como: ['i eat', 'eat'],
   registraron: ['registered themselves'],
+  haya: ['beech'],
 }
 
 export async function translateWord(word: string): Promise<TranslationResult> {
