@@ -6,13 +6,13 @@ on:
       - main
 
   schedule:
-    - cron: "0 6 * * *"
-    - cron: "0 14 * * *"
+    # Runs twice daily. Using minute 17 avoids GitHub's busiest scheduling period.
+    - cron: "17 6,14 * * *"
 
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -23,6 +23,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -35,10 +36,117 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Update news snapshot
+        id: update_news
         run: npm run update:news
+
+      - name: Validate news snapshot
+        id: validate_news
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile } from 'node:fs/promises';
+
+          const snapshot = JSON.parse(
+            await readFile('public/news.json', 'utf8')
+          );
+
+          const articles = Array.isArray(snapshot.articles)
+            ? snapshot.articles
+            : [];
+
+          const generatedAt = Date.parse(snapshot.generatedAt || '');
+
+          const newestPublishedTime = Math.max(
+            ...articles.map(
+              (article) => Date.parse(article.publishedAt || '') || 0
+            )
+          );
+
+          const errors = [];
+
+          if (
+            !Number.isFinite(generatedAt) ||
+            generatedAt < Date.now() - 60 * 60 * 1000
+          ) {
+            errors.push(
+              'The news snapshot is missing or older than one hour.'
+            );
+          }
+
+          if (articles.length < 8) {
+            errors.push(
+              `Expected at least 8 articles but received ${articles.length}.`
+            );
+          }
+
+          if (snapshot.articleCount !== articles.length) {
+            errors.push(
+              'articleCount does not match the number of articles.'
+            );
+          }
+
+          if (
+            newestPublishedTime <
+            Date.now() - 72 * 60 * 60 * 1000
+          ) {
+            errors.push(
+              'The newest article is older than 72 hours.'
+            );
+          }
+
+          const invalidArticle = articles.find(
+            (article) =>
+              !article ||
+              typeof article.title !== 'string' ||
+              !article.title.trim() ||
+              typeof article.url !== 'string' ||
+              !article.url.startsWith('http') ||
+              typeof article.content !== 'string' ||
+              !article.content.trim()
+          );
+
+          if (invalidArticle) {
+            errors.push(
+              `Article ${invalidArticle.id || '(unknown)'} is incomplete.`
+            );
+          }
+
+          if (errors.length > 0) {
+            console.error(errors.join('\n'));
+            process.exit(1);
+          }
+
+          console.log(
+            `Validated ${articles.length} fresh articles.`
+          );
+          NODE
+
+      # This creates regular repository activity so GitHub cannot disable
+      # the scheduled workflow again after 60 days of inactivity.
+      - name: Persist snapshot and workflow heartbeat
+        if: ${{ always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+        env:
+          UPDATE_OUTCOME: ${{ steps.update_news.outcome }}
+          VALIDATE_OUTCOME: ${{ steps.validate_news.outcome }}
+        run: |
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/news-refresh-heartbeat
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .github/news-refresh-heartbeat
+
+          if [ "$UPDATE_OUTCOME" = "success" ] && [ "$VALIDATE_OUTCOME" = "success" ]; then
+            git add public/news.json
+          else
+            git restore public/news.json
+          fi
+
+          git commit -m "chore: record news refresh [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
 
       - name: Build
         run: npm run build
